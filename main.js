@@ -1,5 +1,3 @@
-// main.js
-
 // Constants
 const AU_SCALE = 50; // Scaling factor for semi-major axis in pixels
 const TIME_SCALE = 0.2; // Speed multiplier for the orbital animation
@@ -16,7 +14,6 @@ let systems = []; // Placeholder for star systems data
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  updateSystemPositions();  // Adjust positions of systems after resize
 }
 
 // Load JSON data
