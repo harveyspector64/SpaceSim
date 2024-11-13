@@ -1,0 +1,5 @@
+[
+    {"semi": 0.5, "period": 2.0, "radius": 0.2},
+    {"semi": 1.0, "period": 1.5, "radius": 0.3},
+    {"semi": 1.5, "period": 1.0, "radius": 0.4}
+]
