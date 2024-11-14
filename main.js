@@ -42,24 +42,13 @@ function renderPlanet(planet, centerX, centerY, currentTime) {
   ctx.arc(centerX, centerY, planet.semiMajorAxis * AU_SCALE, 0, 2 * Math.PI);
   ctx.stroke();
 
-  const color = getColorFromTemperature(planet.temperature || 500);
-  ctx.fillStyle = color;
+  // Fixed color for testing
+  ctx.fillStyle = 'rgb(255, 255, 0)';
 
   const planetSize = (planet.radius || 1) * PLANET_SCALE;
   ctx.beginPath();
   ctx.arc(centerX + x, centerY + y, planetSize, 0, 2 * Math.PI);
   ctx.fill();
-}
-
-function getColorFromTemperature(temp) {
-  const normalizedTemp = Math.min(1250, Math.max(250, temp));
-  const blue = Math.max(0, 255 - ((normalizedTemp - 250) / 4));
-  const red = Math.max(0, (normalizedTemp - 250) / 4);
-  
-  // Adjust the green channel to balance color
-  const green = Math.min(255, red / 2);
-  
-  return `rgb(${Math.floor(red)}, ${Math.floor(green)}, ${Math.floor(blue)})`;
 }
 
 function getStaticPosition(index) {
@@ -77,6 +66,8 @@ function renderSystems(currentTime) {
     const { x: centerX, y: centerY } = getStaticPosition(index);
 
     system.planets.forEach(planet => {
+      // Logging to diagnose any issues in real-time
+      console.log(`Rendering planet at center (${centerX}, ${centerY})`);
       renderPlanet(planet, centerX, centerY, currentTime);
     });
   });
