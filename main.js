@@ -1,86 +1,86 @@
-// Constants
-const AU_SCALE = 130; // Scaling factor for semi-major axis in pixels for a closer view
-const TIME_SCALE = 0.002; // Increased speed multiplier for faster orbital motion
-const PLANET_SCALE = 0.35; // Slightly larger planets for visibility
+// Constants for scaling
+const AU_SCALE = 130;
+const TIME_SCALE = 0.002;
+const PLANET_SCALE = 0.35;
 
-// Initialize canvas and context
+// Canvas setup
 const canvas = document.getElementById("simulationCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let systems = []; // Placeholder for star systems data
-let lastTimestamp = 0; // Track time for smoother animation
-let currentTime = 0; // Initialize currentTime for use in animation loop
+let systems = []; // Array for storing star systems data
+let lastTimestamp = 0;
+let currentTime = 0;
 
-// Resize canvas on window resize
+// Resize canvas function
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 }
 
-// Load JSON data
+// Load data.json
 fetch('data.json')
   .then(response => response.json())
   .then(data => {
     systems = data;
-    resizeCanvas();  // Initial setup
-    requestAnimationFrame(animate); // Start animation loop
+    resizeCanvas();
+    requestAnimationFrame(animate); // Start animation
   })
   .catch(error => console.error("Error loading data:", error));
 
-// Calculate orbital position with refined smooth angle calculation
+// Calculate orbital position based on semi-major axis, period, and current time
 function calculateOrbitPosition(semiMajorAxis, period, initialTime, currentTime) {
-  const angle = 2 * Math.PI * ((currentTime - initialTime) / period) % (2 * Math.PI); // Wrap-around angle
+  const angle = 2 * Math.PI * ((currentTime - initialTime) / period) % (2 * Math.PI); // Restrict to [0, 2π] for each orbit
   const x = semiMajorAxis * Math.cos(angle);
   const y = semiMajorAxis * Math.sin(angle);
   return { x, y };
 }
 
-// Render each planet in orbit
+// Render a planet in its orbit with its specific color and fixed position
 function renderPlanet(planet, centerX, centerY, currentTime) {
   const { x, y } = calculateOrbitPosition(planet.semiMajorAxis * AU_SCALE, planet.period, planet.initialTime, currentTime);
-  
-  // Draw orbit path with reduced alpha for stability
+
+  // Draw the orbit path
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.beginPath();
   ctx.arc(centerX, centerY, planet.semiMajorAxis * AU_SCALE, 0, 2 * Math.PI);
   ctx.stroke();
 
-  // Determine color based on temperature
-  const color = getColorFromTemperature(planet.temperature || 500); // Default if missing
+  // Set the color based on temperature
+  const color = getColorFromTemperature(planet.temperature || 500);
   ctx.fillStyle = color;
 
-  // Draw planet with adjusted size
+  // Draw the planet
   const planetSize = (planet.radius || 1) * PLANET_SCALE;
   ctx.beginPath();
   ctx.arc(centerX + x, centerY + y, planetSize, 0, 2 * Math.PI);
   ctx.fill();
 }
 
-// Temperature to color gradient with slight refinements for color balance
+// Convert temperature to color
 function getColorFromTemperature(temp) {
-  const normalizedTemp = Math.min(1250, Math.max(250, temp)); // Clamp temperature within range
+  const normalizedTemp = Math.min(1250, Math.max(250, temp)); // Clamp temperature for color range
   const blue = Math.max(0, 255 - ((normalizedTemp - 250) / 4));
   const red = Math.max(0, (normalizedTemp - 250) / 4);
   return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`;
 }
 
-// Organic layout positioning function
-function getRandomPosition(index) {
-  const radius = 300 + index * 20; // Increase radius per index for spreading out systems
-  const angle = Math.random() * 2 * Math.PI;
+// Define fixed positions for each system to prevent global rotation
+function getStaticPosition(index) {
+  const radius = 300 + index * 50; // Adjust to spread out
+  const angle = (index * 137.5) * (Math.PI / 180); // Use golden angle for non-grid placement
   const x = canvas.width / 2 + radius * Math.cos(angle);
   const y = canvas.height / 2 + radius * Math.sin(angle);
   return { x, y };
 }
 
-// Render all systems and planets with organic layout
+// Render all systems based on fixed center for each system
 function renderSystems(currentTime) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   systems.forEach((system, index) => {
-    const { x: centerX, y: centerY } = getRandomPosition(index); // Fixed center per system
+    const { x: centerX, y: centerY } = getStaticPosition(index); // Fixed center per system
 
     system.planets.forEach(planet => {
       renderPlanet(planet, centerX, centerY, currentTime);
@@ -88,16 +88,15 @@ function renderSystems(currentTime) {
   });
 }
 
-// Main animation loop using timestamp for smoothness
+// Animation loop for smooth orbiting
 function animate(timestamp) {
   const deltaTime = timestamp - lastTimestamp;
   lastTimestamp = timestamp;
 
-  // Increment currentTime based on actual elapsed time for smooth animation
-  currentTime += deltaTime * TIME_SCALE;
-  renderSystems(currentTime);
+  currentTime += deltaTime * TIME_SCALE; // Update current time
+  renderSystems(currentTime); // Render with updated time
   requestAnimationFrame(animate);
 }
 
-// Listen for window resize
+// Resize listener
 window.addEventListener('resize', resizeCanvas);
