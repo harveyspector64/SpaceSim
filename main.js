@@ -1,7 +1,7 @@
 // Constants for scaling
-const AU_SCALE = 130;
-const TIME_SCALE = 0.002;
-const PLANET_SCALE = 0.35;
+const AU_SCALE = 160;  // Increased to bring objects closer and make the view denser
+const TIME_SCALE = 0.003; // Slightly faster orbiting speed
+const PLANET_SCALE = 0.45; // Larger planets for a more visible display
 
 // Canvas setup
 const canvas = document.getElementById("simulationCanvas");
@@ -68,7 +68,7 @@ function getColorFromTemperature(temp) {
 
 // Define closer positions for each system to achieve density
 function getStaticPosition(index) {
-  const radius = 150 + index * 20; // Reduced distance between systems for denser appearance
+  const radius = 100 + index * 15; // Tighter distance for higher density
   const angle = (index * 137.5) * (Math.PI / 180); // Use golden angle for a non-uniform spread
   const x = canvas.width / 2 + radius * Math.cos(angle);
   const y = canvas.height / 2 + radius * Math.sin(angle);
