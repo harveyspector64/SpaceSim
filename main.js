@@ -1,7 +1,7 @@
 // Constants
-const AU_SCALE = 120; // Scaling factor for semi-major axis in pixels, increase for closer zoom
-const TIME_SCALE = 0.001; // Further reduced speed multiplier for smoother orbital motion
-const PLANET_SCALE = 0.3; // Scaling factor for planet size, slightly larger for better view
+const AU_SCALE = 130; // Increased scaling factor for semi-major axis in pixels for a closer view
+const TIME_SCALE = 0.002; // Increased speed multiplier for faster orbital motion
+const PLANET_SCALE = 0.35; // Slightly larger planets for visibility
 
 // Initialize canvas and context
 const canvas = document.getElementById("simulationCanvas");
@@ -29,7 +29,7 @@ fetch('data.json')
   })
   .catch(error => console.error("Error loading data:", error));
 
-// Calculate orbital position based on refined smooth angle calculation
+// Calculate orbital position with refined smooth angle calculation
 function calculateOrbitPosition(semiMajorAxis, period, initialTime, currentTime) {
   const angle = 2 * Math.PI * ((currentTime - initialTime) / period) % (2 * Math.PI); // Wrap-around angle
   const x = semiMajorAxis * Math.cos(angle);
@@ -66,13 +66,21 @@ function getColorFromTemperature(temp) {
   return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`;
 }
 
-// Render all systems and planets with improved layout and spacing
+// Organic layout positioning function
+function getRandomPosition(index) {
+  const radius = 300 + index * 20; // Increase radius per index for spreading out systems
+  const angle = Math.random() * 2 * Math.PI;
+  const x = canvas.width / 2 + radius * Math.cos(angle);
+  const y = canvas.height / 2 + radius * Math.sin(angle);
+  return { x, y };
+}
+
+// Render all systems and planets with organic layout
 function renderSystems(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
   systems.forEach((system, index) => {
-    const centerX = (canvas.width / 2) + (index % 10) * 150 - 700; // Adjust layout for closer view
-    const centerY = (canvas.height / 2) + Math.floor(index / 10) * 150 - 300;
+    const { x: centerX, y: centerY } = getRandomPosition(index);
 
     system.planets.forEach(planet => {
       renderPlanet(planet, centerX, centerY, currentTime);
