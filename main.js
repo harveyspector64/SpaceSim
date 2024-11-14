@@ -1,5 +1,5 @@
 // Constants
-const AU_SCALE = 130; // Increased scaling factor for semi-major axis in pixels for a closer view
+const AU_SCALE = 130; // Scaling factor for semi-major axis in pixels for a closer view
 const TIME_SCALE = 0.002; // Increased speed multiplier for faster orbital motion
 const PLANET_SCALE = 0.35; // Slightly larger planets for visibility
 
@@ -80,7 +80,7 @@ function renderSystems(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
   systems.forEach((system, index) => {
-    const { x: centerX, y: centerY } = getRandomPosition(index);
+    const { x: centerX, y: centerY } = getRandomPosition(index); // Fixed center per system
 
     system.planets.forEach(planet => {
       renderPlanet(planet, centerX, centerY, currentTime);
