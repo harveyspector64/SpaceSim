@@ -1,7 +1,7 @@
 // Constants
-const AU_SCALE = 100; // Scaling factor for semi-major axis in pixels
-const TIME_SCALE = 0.2; // Speed multiplier for the orbital animation
-const PLANET_SCALE = 0.3; // Scaling factor to reduce planet sizes, adjust as necessary
+const AU_SCALE = 80; // Scaling factor for semi-major axis in pixels
+const TIME_SCALE = 0.15; // Speed multiplier for the orbital animation
+const PLANET_SCALE = 0.2; // Scaling factor to reduce planet sizes, adjust as necessary
 
 // Initialize canvas and context
 const canvas = document.getElementById("simulationCanvas");
@@ -39,13 +39,13 @@ function calculateOrbitPosition(semiMajorAxis, period, initialTime, currentTime)
 function renderPlanet(planet, centerX, centerY, currentTime) {
   const { x, y } = calculateOrbitPosition(planet.semiMajorAxis * AU_SCALE, planet.period, planet.initialTime, currentTime);
   
-  // Draw orbit path
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  // Draw orbit path with slight transparency
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.beginPath();
   ctx.arc(centerX, centerY, planet.semiMajorAxis * AU_SCALE, 0, 2 * Math.PI);
   ctx.stroke();
 
-  // Determine color based on temperature and add variation
+  // Determine color based on temperature with a wider gradient range
   const color = getColorFromTemperature(planet.temperature || 500); // default temperature if missing
   ctx.fillStyle = color;
 
@@ -56,11 +56,12 @@ function renderPlanet(planet, centerX, centerY, currentTime) {
   ctx.fill();
 }
 
-// Temperature to color gradient with more varied color mapping
+// Temperature to color gradient with enhanced color range
 function getColorFromTemperature(temp) {
-  const blue = Math.min(255, Math.max(0, 255 - temp / 5));  // Varying blue based on temp
-  const red = Math.min(255, Math.max(0, temp / 3));
-  return `rgb(${red}, ${Math.min(255, red / 2)}, ${blue})`;
+  const normalizedTemp = Math.min(1250, Math.max(250, temp)); // Clamp temperature within range
+  const blue = Math.max(0, 255 - ((normalizedTemp - 250) / 4));
+  const red = Math.max(0, (normalizedTemp - 250) / 4);
+  return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`; // Adding gradient for a more dynamic color range
 }
 
 // Render all systems and planets
@@ -68,8 +69,9 @@ function renderSystems(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
   systems.forEach((system, index) => {
-    const centerX = (canvas.width / 2) + (index % 6) * 150 - 400; // Distribute systems across rows
-    const centerY = (canvas.height / 2) + Math.floor(index / 6) * 150 - 200;
+    // Arrange systems in a tightly packed grid with random slight offset for density
+    const centerX = (canvas.width / 2) + (index % 10) * 120 - 600 + (Math.random() * 20 - 10);
+    const centerY = (canvas.height / 2) + Math.floor(index / 10) * 120 - 300 + (Math.random() * 20 - 10);
 
     system.planets.forEach(planet => {
       renderPlanet(planet, centerX, centerY, currentTime);
