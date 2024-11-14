@@ -11,6 +11,7 @@ canvas.height = window.innerHeight;
 
 let systems = []; // Placeholder for star systems data
 let lastTimestamp = 0; // Track time for smoother animation
+let currentTime = 0; // Initialize currentTime for use in animation loop
 
 // Resize canvas on window resize
 function resizeCanvas() {
