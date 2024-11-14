@@ -1,7 +1,7 @@
 // Constants
-const AU_SCALE = 80; // Scaling factor for semi-major axis in pixels
-const TIME_SCALE = 0.15; // Speed multiplier for the orbital animation
-const PLANET_SCALE = 0.2; // Scaling factor to reduce planet sizes, adjust as necessary
+const AU_SCALE = 90; // Scaling factor for semi-major axis in pixels
+const TIME_SCALE = 0.05; // Reduced speed multiplier for smoother orbital motion
+const PLANET_SCALE = 0.25; // Scaling factor to adjust planet sizes
 
 // Initialize canvas and context
 const canvas = document.getElementById("simulationCanvas");
@@ -27,9 +27,9 @@ fetch('data.json')
   })
   .catch(error => console.error("Error loading data:", error));
 
-// Calculate orbital position based on period and time
+// Calculate orbital position with refined angle for smoothness
 function calculateOrbitPosition(semiMajorAxis, period, initialTime, currentTime) {
-  const angle = 2 * Math.PI * ((currentTime - initialTime) / period); // Phase angle
+  const angle = 2 * Math.PI * ((currentTime - initialTime) / period) % (2 * Math.PI); // Phase angle with wrap-around
   const x = semiMajorAxis * Math.cos(angle);
   const y = semiMajorAxis * Math.sin(angle);
   return { x, y };
@@ -39,13 +39,13 @@ function calculateOrbitPosition(semiMajorAxis, period, initialTime, currentTime)
 function renderPlanet(planet, centerX, centerY, currentTime) {
   const { x, y } = calculateOrbitPosition(planet.semiMajorAxis * AU_SCALE, planet.period, planet.initialTime, currentTime);
   
-  // Draw orbit path with slight transparency
+  // Draw orbit path with slight transparency for smoother visuals
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
   ctx.beginPath();
   ctx.arc(centerX, centerY, planet.semiMajorAxis * AU_SCALE, 0, 2 * Math.PI);
   ctx.stroke();
 
-  // Determine color based on temperature with a wider gradient range
+  // Determine color based on temperature with refined gradient
   const color = getColorFromTemperature(planet.temperature || 500); // default temperature if missing
   ctx.fillStyle = color;
 
@@ -56,22 +56,22 @@ function renderPlanet(planet, centerX, centerY, currentTime) {
   ctx.fill();
 }
 
-// Temperature to color gradient with enhanced color range
+// Temperature to color gradient with finer scaling
 function getColorFromTemperature(temp) {
   const normalizedTemp = Math.min(1250, Math.max(250, temp)); // Clamp temperature within range
   const blue = Math.max(0, 255 - ((normalizedTemp - 250) / 4));
   const red = Math.max(0, (normalizedTemp - 250) / 4);
-  return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`; // Adding gradient for a more dynamic color range
+  return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`;
 }
 
-// Render all systems and planets
+// Render all systems and planets with improved layout and spacing
 function renderSystems(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
 
   systems.forEach((system, index) => {
-    // Arrange systems in a tightly packed grid with random slight offset for density
-    const centerX = (canvas.width / 2) + (index % 10) * 120 - 600 + (Math.random() * 20 - 10);
-    const centerY = (canvas.height / 2) + Math.floor(index / 10) * 120 - 300 + (Math.random() * 20 - 10);
+    // Tighter grid layout with randomized slight offset for natural distribution
+    const centerX = (canvas.width / 2) + (index % 10) * 100 - 500 + (Math.random() * 15 - 7.5);
+    const centerY = (canvas.height / 2) + Math.floor(index / 10) * 100 - 300 + (Math.random() * 15 - 7.5);
 
     system.planets.forEach(planet => {
       renderPlanet(planet, centerX, centerY, currentTime);
