@@ -66,10 +66,10 @@ function getColorFromTemperature(temp) {
   return `rgb(${red}, ${Math.min(255, red / 1.5)}, ${blue})`;
 }
 
-// Define fixed positions for each system to prevent global rotation
+// Define closer positions for each system to achieve density
 function getStaticPosition(index) {
-  const radius = 300 + index * 50; // Adjust to spread out
-  const angle = (index * 137.5) * (Math.PI / 180); // Use golden angle for non-grid placement
+  const radius = 150 + index * 20; // Reduced distance between systems for denser appearance
+  const angle = (index * 137.5) * (Math.PI / 180); // Use golden angle for a non-uniform spread
   const x = canvas.width / 2 + radius * Math.cos(angle);
   const y = canvas.height / 2 + radius * Math.sin(angle);
   return { x, y };
