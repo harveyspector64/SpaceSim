@@ -13,12 +13,12 @@ let maxOrbitSpeed = 0.0005; // Adjust orbital speed for smoothness
 // Fetch data from JSON and start simulation
 fetch("data.json")
     .then((response) => response.json())
-    .then((data) => {
-        console.log("Data loaded successfully:", data); // Debug: Check if data loads correctly
-        if (data && data.planets) {
-            startSimulation(data.planets);
+    .then((planets) => {
+        console.log("Data loaded successfully:", planets); // Debug: Check if data loads correctly
+        if (Array.isArray(planets)) {
+            startSimulation(planets);
         } else {
-            console.error("Data format error: 'planets' not found in data.json");
+            console.error("Data format error: Expected an array in data.json");
         }
     })
     .catch((error) => {
