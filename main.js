@@ -1,81 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orbital System Simulation</title>
-    <style>
-        body { margin: 0; overflow: hidden; background-color: black; }
-        canvas { display: block; }
-    </style>
-</head>
-<body>
-    <canvas id="simulationCanvas"></canvas>
-    <script>
-        const canvas = document.getElementById("simulationCanvas");
-        const context = canvas.getContext("2d");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+// Select canvas and set up the context
+const canvas = document.getElementById("simulationCanvas");
+const context = canvas.getContext("2d");
 
-        let planets = [];  // This will hold our planet data
+// Store the center coordinates for easy reference
+let centerX = canvas.width / 2;
+let centerY = canvas.height / 2;
 
-        // Adjust canvas on resize
-        window.addEventListener("resize", () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            renderPlanets(planets);
-        });
+// Variables for control of scale, clustering, and animation speed
+let scaleFactor = 0.05; // Control how tightly objects cluster
+let maxOrbitSpeed = 0.0005; // Adjust orbital speed for smoothness
 
-        // Function to draw each planet
-        function drawPlanet(context, x, y, size, color) {
-            const maxSize = 20; // Cap size for visual consistency
-            const radius = Math.min(size, maxSize); // Ensure no planet is too large
+// Fetch data from JSON and start simulation
+fetch("data.json")
+    .then((response) => response.json())
+    .then((data) => {
+        startSimulation(data.planets);
+    })
+    .catch((error) => {
+        console.error("Error loading data:", error);
+    });
 
-            context.beginPath();
-            context.arc(x, y, radius, 0, Math.PI * 2);
-            context.fillStyle = color;
-            context.fill();
-        }
+// Function to start the simulation
+function startSimulation(planets) {
+    let startTime = Date.now();
 
-        // Function to render all planets
-        function renderPlanets(planets) {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            planets.forEach((planet) => {
-                // Position and scale adjustments to avoid overlapping
-                const scaledX = (planet.x / 15) + canvas.width / 2; // Compress positions closer
-                const scaledY = (planet.y / 15) + canvas.height / 2;
+    function animate() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
-                drawPlanet(context, scaledX, scaledY, planet.size, planet.color || "orange");
-            });
-        }
+        // Calculate time for smooth orbital movement
+        let currentTime = Date.now();
+        let elapsedTime = (currentTime - startTime) * maxOrbitSpeed;
 
-        // Function to animate the planets
-        function animate() {
-            context.clearRect(0, 0, canvas.width, canvas.height);
-            planets.forEach((planet) => {
-                // Update positions based on simulated orbital movement
-                planet.x += planet.vx;
-                planet.y += planet.vy;
-            });
-            renderPlanets(planets);
-            requestAnimationFrame(animate);
-        }
+        renderPlanets(planets, elapsedTime);
+        requestAnimationFrame(animate);
+    }
 
-        // Load planets data from JSON file
-        fetch("data.json")
-            .then(response => response.json())
-            .then(data => {
-                planets = data.map(item => ({
-                    x: item.x * 10, // Scale up initial positions
-                    y: item.y * 10,
-                    size: item.size ? item.size / 5 : 5, // Scale down to prevent oversized planets
-                    vx: item.vx || 0.5 * (Math.random() - 0.5), // Small random velocity if not provided
-                    vy: item.vy || 0.5 * (Math.random() - 0.5),
-                    color: item.color || "orange" // Default color if none specified
-                }));
-                animate();
-            })
-            .catch(error => console.error("Error loading data:", error));
-    </script>
-</body>
-</html>
+    animate();
+}
+
+// Function to draw each planet/star
+function drawPlanet(x, y, size, color) {
+    context.beginPath();
+    context.arc(x, y, size, 0, Math.PI * 2);
+    context.fillStyle = color;
+    context.fill();
+}
+
+// Render planets, including orbital calculations
+function renderPlanets(planets, elapsedTime) {
+    planets.forEach((planet) => {
+        // Calculate orbital movement
+        let orbitRadius = planet.distance * scaleFactor;
+        let x = centerX + orbitRadius * Math.cos(elapsedTime * planet.orbitSpeed);
+        let y = centerY + orbitRadius * Math.sin(elapsedTime * planet.orbitSpeed);
+
+        // Draw each planet with specified size and color
+        drawPlanet(x, y, planet.size, planet.color);
+    });
+}
+
+// Event listener for resizing the canvas responsively
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
+
+// Function to resize the canvas and adjust center coordinates
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    centerX = canvas.width / 2;
+    centerY = canvas.height / 2;
+}
