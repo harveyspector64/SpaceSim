@@ -14,7 +14,12 @@ let maxOrbitSpeed = 0.0005; // Adjust orbital speed for smoothness
 fetch("data.json")
     .then((response) => response.json())
     .then((data) => {
-        startSimulation(data.planets);
+        console.log("Data loaded successfully:", data); // Debug: Check if data loads correctly
+        if (data && data.planets) {
+            startSimulation(data.planets);
+        } else {
+            console.error("Data format error: 'planets' not found in data.json");
+        }
     })
     .catch((error) => {
         console.error("Error loading data:", error);
@@ -49,6 +54,10 @@ function drawPlanet(x, y, size, color) {
 // Render planets, including orbital calculations
 function renderPlanets(planets, elapsedTime) {
     planets.forEach((planet) => {
+        if (!planet || !planet.distance || !planet.orbitSpeed || !planet.size || !planet.color) {
+            console.error("Planet data missing properties:", planet);
+            return;
+        }
         // Calculate orbital movement
         let orbitRadius = planet.distance * scaleFactor;
         let x = centerX + orbitRadius * Math.cos(elapsedTime * planet.orbitSpeed);
